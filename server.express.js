@@ -11,8 +11,9 @@ const express   = require( 'express' ),
 
 app.use( express.static('./public') )
 app.use( bodyParser.json() )
-app.use(passport.initialize());
-app.use(passport.session());
+app.use( session({ secret:'catsanddogsandfish', resave:false, saveUninitialized:false }) )
+app.use( passport.initialize() )
+app.use( passport.session() )
 
 app.use('/', express.static('index.html'))
 
@@ -74,11 +75,16 @@ passport.serializeUser( ( user, done ) => done( null, user.username ) )
 // in this example we're using the username
 passport.deserializeUser( ( username, done ) => {
   const user = users.find( u => u.username === username )
-  console.log( 'deserializing:', name )
+  console.log( 'deserializing:', username )
   
   if( user !== undefined ) {
     done( null, user )
   }else{
     done( null, false, { message:'user not found; session not restored' })
   }
+})
+
+app.post('/test', function( req, res ) {
+  console.log( 'authenticate with cookie?', req.user )
+  res.json({ status:'success' })
 })

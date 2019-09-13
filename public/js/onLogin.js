@@ -37,13 +37,6 @@ const submit = function( e ) {
             let json = response.json();
           }
       })
-    //   .then(res => {
-    //     if(res){
-    //         console.log('missing input')
-    //         document.querySelector( '#blankInputBox' ).removeAttribute('hidden');
-    //         return false;
-    //       }
-    //   })
 
     // window.location = '/'
 
