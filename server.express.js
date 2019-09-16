@@ -22,6 +22,17 @@ app.use( session({ secret:'catsanddogsandfish', resave:false, saveUninitialized:
 app.use( passport.initialize() )
 app.use( passport.session() )
 
+// Local DB Config
+db.defaults({ users: [
+  {"username":"admin", "password":"admin"}
+]
+}).write();
+
+const getUsers = function(){
+  let users = db.get('users').value() // Find all users in the collection
+  return users;
+}
+
 app.get('/', function( req, res ) {
   if(isLoggedIn(req)){
     res.sendFile('views/index.html', {root: __dirname })
@@ -50,6 +61,10 @@ app.get('/edit', function( req, res ) {
     res.sendFile('views/login.html', {root: __dirname })
   }
 })
+app.get("/logout", function (req, res) {
+  req.logout()
+  res.redirect("/")
+})
 // server logic will go here
 app.listen( process.env.PORT || 3000 )
 
@@ -60,7 +75,7 @@ app.listen( process.env.PORT || 3000 )
   const myLocalStrategy = function( username, password, done ) {
     // find the first item in our users array where the username
     // matches what was sent by the client. nicer to read/write than a for loop!
-    const user = users.find( __user => __user.username === username )
+    const user = getUsers().find( __user => __user.username === username )
     
     // if user is undefined, then there was no match for the submitted username
     if( user === undefined ) {
@@ -83,14 +98,6 @@ app.listen( process.env.PORT || 3000 )
 
 passport.use( new Local( myLocalStrategy ) )
 passport.initialize()
-
-// a simple table to store non-persistent data. for assignment #3
-// your data must be persistent between sessions using a database (lowdb)
-const users = [
-    { username:'charlie', password:'charliee' },
-    { username:'bill',    password:'billl' }  
-  ]
-  
   
   app.post( 
     '/login',
@@ -101,12 +108,28 @@ const users = [
     }
   )
 
+  app.post('/createAccount', function(req, res){
+    console.log(req.body)
+    let prevUser = db.get('users')
+                    .find({ username: req.body.username })
+                    .value()
+
+    if(typeof prevUser == 'undefined'){
+      db.get('users').push(req.body).write();
+      res.writeHeader(200, { 'Content-Type': 'text/plain' })
+      res.end()
+    } else {
+      res.writeHeader(409, { 'Content-Type': 'text/plain' })
+      res.end()
+    }
+  })
+
 passport.serializeUser( ( user, done ) => done( null, user.username ) )
 
 // "name" below refers to whatever piece of info is serialized in seralizeUser,
 // in this example we're using the username
 passport.deserializeUser( ( username, done ) => {
-  const user = users.find( u => u.username === username )
+  const user = getUsers().find( u => u.username === username )
   console.log( 'deserializing:', username )
   
   if( user !== undefined ) {
@@ -237,8 +260,3 @@ var Entry = function(time, title, notes, priority) {
       }
     });
   }
-
-  app.get("/logout", function (req, res) {
-    req.logout()
-    res.redirect("/")
-})

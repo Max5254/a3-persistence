@@ -19,7 +19,7 @@
     <!-- Bootstrap JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-    
+
 </head>
 
 <!-- Template origin: https://startbootstrap.com/templates/scrolling-nav/ -->
@@ -33,28 +33,14 @@
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
                 aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
-            <!-- </button>
-            <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="/">List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="/new">New</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="/about">About</a>
-                    </li>
-                </ul>
-            </div> -->
         </div>
     </nav>
 
     <!-- Header -->
     <header class="bg-primary text-white">
         <div class="container text-center">
-            <h1>Create new Item</h1>
-            <p class="lead">Remember, <b>DON'T</b> do this thing!</p>
+            <h1>Sign In</h1>
+            <p class="lead"><i>Hint: Default user is admin/admin</i></p>
         </div>
     </header>
 
@@ -63,31 +49,64 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto center-div">
-                        <form action="">
-                            <div class="alert alert-danger" role="alert" id="invalidLoginBox" hidden>
-                                Invalid username or password.
-                              </div>
-                              <div class="alert alert-danger" role="alert" id="blankInputBox" hidden>
-                                Inputs can't be blank.
-                              </div>
-                                <div class="form-group row">
-                                  <label for="inputUsername" class="col-sm-2 col-form-label">Username</label>
-                                  <div class="col-sm-10">
-                                    <input class="form-control" id="inputUsername" placeholder="Username">
-                                  </div>
+                    <div class="alert alert-danger" role="alert" id="blankInputBox" hidden>
+                        Inputs can't be blank.
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <h2>Login</h2>
+                            <form action="">
+                                <div class="alert alert-danger" role="alert" id="invalidLoginBox" hidden>
+                                    Invalid username or password.
                                 </div>
                                 <div class="form-group row">
-                                  <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
-                                  <div class="col-sm-10">
-                                    <input type="password" class="form-control" id="inputPassword" placeholder="Password">
-                                  </div>
+                                    <label for="inputUsername" class="col-sm-4 col-form-label">Username</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" id="inputUsername" placeholder="Username">
+                                    </div>
                                 </div>
                                 <div class="form-group row">
-                                  <div class="col-sm-10">
-                                    <button id="login" class="btn btn-primary">Login</button>
-                                  </div>
+                                    <label for="inputPassword" class="col-sm-4 col-form-label">Password</label>
+                                    <div class="col-sm-8">
+                                        <input type="password" class="form-control" id="inputPassword"
+                                            placeholder="Password">
+                                    </div>
                                 </div>
-                              </form>
+                                <div class="form-group row">
+                                    <div class="col-sm-8">
+                                        <button id="login" class="btn btn-primary">Login</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-6">
+                            <!-- Create account -->
+                            <h2>Create New Account</h2>
+                            <form action="">
+                                <div class="alert alert-danger" role="alert" id="invalidUsernameBox" hidden>
+                                    Username already in use.
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputUsernameCreate" class="col-sm-4 col-form-label">Username</label>
+                                    <div class="col-sm-8">
+                                        <input class="form-control" id="inputUsernameCreate" placeholder="Username">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="inputPasswordCreate" class="col-sm-4 col-form-label">Password</label>
+                                    <div class="col-sm-8">
+                                        <input type="password" class="form-control" id="inputPasswordCreate"
+                                            placeholder="Password">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-sm-8">
+                                        <button id="create" class="btn btn-secondary">Create Account</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                     <script src="js/onLogin.js"></script>
                 </div>
             </div>
@@ -96,18 +115,18 @@
 
     <!-- Footer -->
     <footer class="text-center py-5 bg-dark">
-            <div class="container">
-                <p class="m-0 text-white">Copyright &copy; Max Westwater 2019</p>
-                <div class="footer-social">
-                    <a href="mailto:mhwestwater@wpi.edu" target="_blank">
-                        <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                    </a>
-                    <a href="https://github.com/Max5254/a2-shortstack" target="_blank">
-                        <i class="fa fa-github" aria-hidden="true"></i>
-                    </a>
-                </div>
+        <div class="container">
+            <p class="m-0 text-white">Copyright &copy; Max Westwater 2019</p>
+            <div class="footer-social">
+                <a href="mailto:mhwestwater@wpi.edu" target="_blank">
+                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                </a>
+                <a href="https://github.com/Max5254/a2-shortstack" target="_blank">
+                    <i class="fa fa-github" aria-hidden="true"></i>
+                </a>
             </div>
-        </footer>
+        </div>
+    </footer>
 
 </body>
 
