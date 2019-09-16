@@ -7,7 +7,14 @@ const express   = require( 'express' ),
       low = require('lowdb'),
       FileSync = require('lowdb/adapters/FileSync'),
       adapter = new FileSync('db.json'),
-      db = low(adapter)
+      db = low(adapter),
+      AWS = require('aws-sdk');
+
+// Set the Region 
+AWS.config.update({region: 'us-east-2'});
+
+// Create the DynamoDB service object
+var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
 app.use( express.static('./public') )
 app.use( bodyParser.json() )
@@ -15,10 +22,35 @@ app.use( session({ secret:'catsanddogsandfish', resave:false, saveUninitialized:
 app.use( passport.initialize() )
 app.use( passport.session() )
 
-app.use('/', express.static('index.html'))
-
+app.get('/', function( req, res ) {
+  if(isLoggedIn(req)){
+    res.sendFile('views/index.html', {root: __dirname })
+  } else {
+    res.sendFile('views/login.html', {root: __dirname })
+  }
+})
+app.get('/new', function( req, res ) {
+  if(isLoggedIn(req)){
+    res.sendFile('views/new.html', {root: __dirname })
+  } else {
+    res.sendFile('views/login.html', {root: __dirname })
+  }
+})
+app.get('/about', function( req, res ) {
+  if(isLoggedIn(req)){
+    res.sendFile('views/about.html', {root: __dirname })
+  } else {
+    res.sendFile('views/login.html', {root: __dirname })
+  }
+})
+app.get('/edit', function( req, res ) {
+  if(isLoggedIn(req)){
+    res.sendFile('views/edit.html', {root: __dirname })
+  } else {
+    res.sendFile('views/login.html', {root: __dirname })
+  }
+})
 // server logic will go here
-
 app.listen( process.env.PORT || 3000 )
 
 
@@ -85,6 +117,128 @@ passport.deserializeUser( ( username, done ) => {
 })
 
 app.post('/test', function( req, res ) {
-  console.log( 'authenticate with cookie?', req.user )
+  console.log( 'authenticate with cookie?', isLoggedIn(req) )
   res.json({ status:'success' })
+})
+
+app.get('/get', function(request, response){
+    if(isLoggedIn(request)){
+      getDDB(request.user.username, function(entryString){
+          response.writeHeader( 200, { 'Content-Type': 'application/json' })
+          response.end( entryString )
+        });
+    } else {
+      response.writeHeader(401, { 'Content-Type': 'text/plain' })
+    }
+})
+
+app.post('/submit', function(request, response){
+    if(!isLoggedIn(request)){
+      response.writeHead( 401, "NO", {'Content-Type': 'text/plain' })
+      response.end()
+      return false;
+    }
+    let dataString = ''
+
+    request.on( 'data', function( data ) {
+        dataString += data 
+    })
+    request.on( 'end', function() {
+      let dataJSON = JSON.parse( dataString )
+      console.log( dataJSON )
+      // Call DynamoDB to add the item to the table
+      let params = {
+        TableName: 'todont-list',
+        Item: {
+          'unixtime' : {N: dataJSON.time},
+          'title' : {S: dataJSON.title},
+          'notes' : {S: dataJSON.notes},
+          'priority' : {N: String(dataJSON.priority)},
+          'owner' : {S: request.user.username}
+        }
+      };
+      ddb.putItem(params, function(err, data) {
+        if (err) {
+          console.log("Error", err);
+        } else {
+          console.log("Success", data);
+        }
+      })
+      response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
+      response.end()
+})
+})
+
+app.delete('/delete', function(request, response){
+    let dataString = ''
+
+  request.on( 'data', function( data ) {
+      dataString += data 
+  })
+  request.on( 'end', function() {
+    let dataJSON = JSON.parse( dataString )
+    console.log( 'on delete' )
+    console.log( dataJSON )
+
+    let params = {
+      TableName:'todont-list',
+      Key:{
+          unixtime: {N: dataJSON.time }
+        },
+      };
+    console.log( params )
+  ddb.deleteItem(params, function(err, data) {
+    if (err) console.log(err, err.stack); // an error occurred
+    else     console.log(data);           // successful response
+  });
+
+    response.writeHead( 200, "OK", {'Content-Type': 'text/plain' })
+    response.end()
+  })
+})
+
+
+var Entry = function(time, title, notes, priority) {
+    return {
+    'unixtime' : time,
+    'title' : title,
+    'notes' : notes,
+    'priority' : priority
+    }
+  }
+
+  const isLoggedIn = function(req){
+    return (typeof req.user !== 'undefined');
+  }
+  
+  const getDDB = function (user, callback){
+    let params = {
+      ExpressionAttributeNames: {
+        '#owner_table': 'owner',
+    },
+    ExpressionAttributeValues: {
+        ':owner_name': {S: user},
+    },
+      FilterExpression: '#owner_table = :owner_name',
+      TableName: 'todont-list'
+    };
+    
+    ddb.scan(params, function(err, data) {
+      let entryArray = []
+      if (err) {
+        console.log("Error", err);
+        return []
+      } else {
+        data.Items.forEach(function(e, index, array) {
+          entryArray.push(new Entry(e.unixtime.N, e.title.S, e.notes.S, e.priority.N))
+        });
+        entryString = JSON.stringify( entryArray )
+        callback(entryString)
+      }
+    });
+  }
+
+  app.get("/logout", function (req, res) {
+    req.logout()
+    res.redirect("/")
 })

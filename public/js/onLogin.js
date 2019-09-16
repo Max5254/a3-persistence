@@ -2,14 +2,6 @@ const submit = function( e ) {
     // prevent default form action from being carried out
     e.preventDefault()
 
-    let getTime = function(){
-    let utctime = String(Date.now());
-    try {
-      utctime = document.querySelector( '#inputTime' ).value;
-    } catch {}
-    return utctime;
-  }
-
     const username = document.querySelector( '#inputUsername' ),
           password = document.querySelector( '#inputPassword' ),
           json = { username: username.value, 
@@ -32,13 +24,14 @@ const submit = function( e ) {
           if(response.status == 401){
               console.log('unauthorized');
               document.querySelector( '#invalidLoginBox' ).removeAttribute('hidden');
+              return false;
           } else {
             console.log(response);
             let json = response.json();
+            window.location = '/'
           }
       })
 
-    // window.location = '/'
 
     return false
   }
