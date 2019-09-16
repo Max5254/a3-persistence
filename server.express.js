@@ -8,7 +8,11 @@ const express   = require( 'express' ),
       FileSync = require('lowdb/adapters/FileSync'),
       adapter = new FileSync('db.json'),
       db = low(adapter),
-      AWS = require('aws-sdk');
+      AWS = require('aws-sdk'),
+      favicon = require('serve-favicon'),
+      path = require('path'),
+      serveStatic = require('serve-static'),
+      compression = require('compression')
 
 // Set the Region 
 AWS.config.update({region: 'us-east-2'});
@@ -16,11 +20,15 @@ AWS.config.update({region: 'us-east-2'});
 // Create the DynamoDB service object
 var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
-app.use( express.static('./public') )
+app.use(serveStatic('public'))
 app.use( bodyParser.json() )
 app.use( session({ secret:'catsanddogsandfish', resave:false, saveUninitialized:false }) )
 app.use( passport.initialize() )
 app.use( passport.session() )
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
+app.use(compression())
+
+
 
 // Local DB Config
 db.defaults({ users: [
